@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 
+	"github.com/DoubleWB/website/hci/room"
 	"github.com/DoubleWB/website/signatures"
 )
 
@@ -107,6 +108,22 @@ func main() {
 		})
 		api.GET("/signs", fetchAllSignatures)
 		api.POST("/sign", createSignature)
+	}
+
+	hci := r.Group("/hci")
+	{
+		hci.GET("/", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "pong",
+			})
+		})
+		hci.POST("/rooms", room.CreateRoom)
+		hci.GET("/rooms", room.GetRoom)
+		hci.DELETE("/rooms", room.DeleteRooms)
+		hci.POST("/join_room", room.JoinRoom)
+		hci.POST("/items", room.CreateItem)
+		hci.DELETE("/items", room.RemoveParticipation)
+		hci.GET("/bill", room.GetBill)
 	}
 
 	r.GET("/test", func(c *gin.Context) {
