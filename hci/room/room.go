@@ -17,6 +17,7 @@ type Amount struct {
 
 type Item struct {
 	Id      int      `json:"id"`
+	Image   string   `json:"image"`
 	Price   float64  `json:"price"`
 	Amounts []Amount `json:"amount"`
 }
@@ -28,6 +29,7 @@ type User struct {
 type Bill struct {
 	UserId int     `json:"user_id"`
 	Bill   float64 `json:"bill"`
+	Items  []Item  `json:"items"`
 }
 
 type Room struct {
@@ -41,6 +43,7 @@ type Room struct {
 
 type Request struct {
 	Code   string  `json:"room_code"`
+	Image  string  `json:"image"`
 	UserId int     `json:"user_id"`
 	ItemId int     `json:"item_id"`
 	Tax    float64 `json:"tax"`
@@ -106,16 +109,19 @@ func (r *Room) addUser() (*User, error) {
 	return &newUser, nil
 }
 
-func (r *Room) addItem(item_id, user_id, amount int, price float64) (*Item, error) {
+func (r *Room) addItem(item_id, user_id, amount int, price float64, image string) (*Item, error) {
 	newItem := Item{
 		Id:      len(r.Items),
 		Price:   price,
+		Image:   image,
 		Amounts: []Amount{Amount{UserId: user_id, Amount: amount}},
 	}
-	for _, i := range r.Items {
+	for ind, i := range r.Items {
 		if i.Id == item_id {
-			i.Amounts = append(i.Amounts, Amount{UserId: user_id, Amount: amount})
-			newItem = i
+			r.Items[ind].Amounts = append(i.Amounts, Amount{UserId: user_id, Amount: amount})
+			r.Items[ind].Price = price
+			r.Items[ind].Image = image
+			return &r.Items[ind], nil
 		}
 	}
 	r.Items = append(r.Items, newItem)
@@ -139,7 +145,17 @@ func (r *Room) removeParticipation(user_id int, item_id int) (*Item, error) {
 }
 
 func (r *Room) calculateBill(user_id int) (*Bill, error) {
-	return &Bill{UserId: user_id, Bill: r.Total / float64(r.UserCount)}, nil
+	participatedItems := []Item{}
+	for _, i := range r.Items {
+		for _, a := range i.Amounts {
+			if a.UserId == user_id {
+				participatedItems = append(participatedItems, i)
+				break
+			}
+		}
+	}
+
+	return &Bill{UserId: user_id, Bill: r.Total / float64(r.UserCount), Items: participatedItems}, nil
 }
 
 func CreateRoom(c *gin.Context) {
@@ -169,7 +185,7 @@ func CreateItem(c *gin.Context) {
 		return
 	}
 
-	i, err := r.addItem(requestDecoded.ItemId, requestDecoded.UserId, requestDecoded.Amount, requestDecoded.Price)
+	i, err := r.addItem(requestDecoded.ItemId, requestDecoded.UserId, requestDecoded.Amount, requestDecoded.Price, requestDecoded.Image)
 
 	if err == nil {
 		c.JSON(http.StatusOK, i)
