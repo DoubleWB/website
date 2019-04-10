@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -362,20 +363,31 @@ func JoinRoom(c *gin.Context) {
 }
 
 func GetBill(c *gin.Context) {
-	var requestDecoded Request
-	dec := json.NewDecoder(c.Request.Body)
-	if err := dec.Decode(&requestDecoded); err != nil {
+	code := c.Param("code")
+	if code == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	r, err := getRoom(requestDecoded.Code)
+	userIdString := c.Param("user")
+	if userIdString == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	userId, err := strconv.Atoi(userIdString)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	b, err := r.calculateBill(requestDecoded.UserId)
+	r, err := getRoom(code)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	b, err := r.calculateBill(userId)
 
 	if err == nil {
 		c.JSON(http.StatusOK, b)

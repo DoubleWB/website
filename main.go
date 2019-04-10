@@ -126,7 +126,7 @@ func main() {
 		hci.POST("/amounts", room.AddParticipation)
 		hci.PUT("/amounts", room.EditParticipation)
 		hci.DELETE("/amounts", room.RemoveParticipation)
-		hci.GET("/bill", room.GetBill)
+		hci.GET("/bill/user/:user/room/:code", room.GetBill)
 	}
 
 	r.GET("/test", func(c *gin.Context) {
