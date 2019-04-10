@@ -122,7 +122,10 @@ func main() {
 		hci.DELETE("/rooms", room.DeleteRooms)
 		hci.POST("/join_room", room.JoinRoom)
 		hci.POST("/items", room.CreateItem)
-		hci.DELETE("/items", room.RemoveParticipation)
+		hci.PUT("/items", room.EditItem)
+		hci.POST("/amounts", room.AddParticipation)
+		hci.PUT("/amounts", room.EditParticipation)
+		hci.DELETE("/amounts", room.RemoveParticipation)
 		hci.GET("/bill", room.GetBill)
 	}
 

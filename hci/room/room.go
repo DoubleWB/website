@@ -109,23 +109,47 @@ func (r *Room) addUser() (*User, error) {
 	return &newUser, nil
 }
 
-func (r *Room) addItem(item_id, user_id, amount int, price float64, image string) (*Item, error) {
+func (r *Room) addItem(image string) (*Item, error) {
 	newItem := Item{
-		Id:      len(r.Items),
-		Price:   price,
-		Image:   image,
-		Amounts: []Amount{Amount{UserId: user_id, Amount: amount}},
-	}
-	for ind, i := range r.Items {
-		if i.Id == item_id {
-			r.Items[ind].Amounts = append(i.Amounts, Amount{UserId: user_id, Amount: amount})
-			r.Items[ind].Price = price
-			r.Items[ind].Image = image
-			return &r.Items[ind], nil
-		}
+		Id:    len(r.Items),
+		Image: image,
 	}
 	r.Items = append(r.Items, newItem)
 	return &newItem, nil
+}
+
+func (r *Room) editItem(item_id int, price float64) (*Item, error) {
+	for ind, i := range r.Items {
+		if i.Id == item_id {
+			r.Items[ind].Price = price
+			return &r.Items[ind], nil
+		}
+	}
+	return nil, errors.New("Item ID not found")
+}
+
+func (r *Room) addParticipation(user_id, item_id, amount int) (*Item, error) {
+	for ind, item := range r.Items {
+		if item.Id == item_id {
+			r.Items[ind].Amounts = append(item.Amounts, Amount{UserId: user_id, Amount: amount})
+			return &r.Items[ind], nil
+		}
+	}
+	return nil, errors.New("Item ID not found")
+}
+
+func (r *Room) editParticipation(user_id, item_id, amount int) (*Item, error) {
+	for ind, item := range r.Items {
+		if item.Id == item_id {
+			for ind2, a := range item.Amounts {
+				if a.UserId == user_id {
+					r.Items[ind].Amounts[ind2] = Amount{UserId: user_id, Amount: amount}
+					return &r.Items[ind], nil
+				}
+			}
+		}
+	}
+	return nil, errors.New("Item ID or User ID not found")
 }
 
 func (r *Room) removeParticipation(user_id int, item_id int) (*Item, error) {
@@ -141,7 +165,7 @@ func (r *Room) removeParticipation(user_id int, item_id int) (*Item, error) {
 		}
 		return &r.Items[ind], nil
 	}
-	return nil, errors.New("Item ID not found")
+	return nil, errors.New("Item ID or User ID not found")
 }
 
 func (r *Room) calculateBill(user_id int) (*Bill, error) {
@@ -185,7 +209,31 @@ func CreateItem(c *gin.Context) {
 		return
 	}
 
-	i, err := r.addItem(requestDecoded.ItemId, requestDecoded.UserId, requestDecoded.Amount, requestDecoded.Price, requestDecoded.Image)
+	i, err := r.addItem(requestDecoded.Image)
+
+	if err == nil {
+		c.JSON(http.StatusOK, i)
+	} else {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+}
+
+func EditItem(c *gin.Context) {
+	var requestDecoded Request
+	dec := json.NewDecoder(c.Request.Body)
+	if err := dec.Decode(&requestDecoded); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	r, err := getRoom(requestDecoded.Code)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	i, err := r.editItem(requestDecoded.ItemId, requestDecoded.Price)
 
 	if err == nil {
 		c.JSON(http.StatusOK, i)
@@ -207,6 +255,54 @@ func GetRoom(c *gin.Context) {
 
 	if err == nil {
 		c.JSON(http.StatusOK, r)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+}
+
+func AddParticipation(c *gin.Context) {
+	var requestDecoded Request
+	dec := json.NewDecoder(c.Request.Body)
+	if err := dec.Decode(&requestDecoded); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	r, err := getRoom(requestDecoded.Code)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	i, err := r.addParticipation(requestDecoded.UserId, requestDecoded.ItemId, requestDecoded.Amount)
+
+	if err == nil {
+		c.JSON(http.StatusOK, i)
+	} else {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+}
+
+func EditParticipation(c *gin.Context) {
+	var requestDecoded Request
+	dec := json.NewDecoder(c.Request.Body)
+	if err := dec.Decode(&requestDecoded); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	r, err := getRoom(requestDecoded.Code)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	i, err := r.editParticipation(requestDecoded.UserId, requestDecoded.ItemId, requestDecoded.Amount)
+
+	if err == nil {
+		c.JSON(http.StatusOK, i)
 	} else {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
