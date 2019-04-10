@@ -244,14 +244,13 @@ func EditItem(c *gin.Context) {
 }
 
 func GetRoom(c *gin.Context) {
-	var requestDecoded Request
-	dec := json.NewDecoder(c.Request.Body)
-	if err := dec.Decode(&requestDecoded); err != nil {
+	code := c.Param("code")
+	if code == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	r, err := getRoom(requestDecoded.Code)
+	r, err := getRoom(code)
 
 	if err == nil {
 		c.JSON(http.StatusOK, r)

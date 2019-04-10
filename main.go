@@ -118,7 +118,7 @@ func main() {
 			})
 		})
 		hci.POST("/rooms", room.CreateRoom)
-		hci.GET("/rooms", room.GetRoom)
+		hci.GET("/rooms/:code", room.GetRoom)
 		hci.DELETE("/rooms", room.DeleteRooms)
 		hci.POST("/join_room", room.JoinRoom)
 		hci.POST("/items", room.CreateItem)
