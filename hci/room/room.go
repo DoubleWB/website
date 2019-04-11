@@ -172,16 +172,22 @@ func (r *Room) removeParticipation(user_id int, item_id int) (*Item, error) {
 
 func (r *Room) calculateBill(user_id int) (*Bill, error) {
 	participatedItems := []Item{}
+	billTotal := r.Tip/float64(len(r.Users)) + r.Tax/float64(len(r.Users))
 	for _, i := range r.Items {
+		userAmount := 0.0
+		totalAmount := 0.0
 		for _, a := range i.Amounts {
+			totalAmount += float64(a.Amount)
 			if a.UserId == user_id {
+				userAmount += float64(a.Amount)
 				participatedItems = append(participatedItems, i)
 				break
 			}
 		}
+		billTotal += userAmount * (i.Price / totalAmount)
 	}
 
-	return &Bill{UserId: user_id, Bill: r.Total / float64(len(r.Users)), Items: participatedItems}, nil
+	return &Bill{UserId: user_id, Bill: billTotal, Items: participatedItems}, nil
 }
 
 func (r *Room) changeFinished(user_id int, finished bool) (*User, error) {
