@@ -132,12 +132,8 @@ func main() {
 		hci.GET("/bill/user/:user/room/:code", room.GetBill)
 	}
 
-	r.GET("/test", func(c *gin.Context) {
-		c.File("pages/test.html")
-	})
-
 	r.GET("/js/script.js", func(c *gin.Context) {
-		c.File("js/script.js")
+		c.File("views/js/script.js")
 	})
 
 	log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz")) // listen and serve on 0.0.0.0:443
