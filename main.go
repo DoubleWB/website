@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 
@@ -119,6 +121,7 @@ func main() {
 		})
 		hci.POST("/rooms", room.CreateRoom)
 		hci.GET("/rooms/:code", room.GetRoom)
+		hci.POST("/finished", room.ChangeFinished)
 		hci.DELETE("/rooms", room.DeleteRooms)
 		hci.POST("/join_room", room.JoinRoom)
 		hci.POST("/items", room.CreateItem)
@@ -137,5 +140,5 @@ func main() {
 		c.File("js/script.js")
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	log.Fatal(autotls.Run(r, "doublewb.xyz")) // listen and serve on 0.0.0.0:443
 }

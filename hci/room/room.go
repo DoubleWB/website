@@ -24,7 +24,8 @@ type Item struct {
 }
 
 type User struct {
-	UserId int `json:"user_id"`
+	UserId   int  `json:"user_id"`
+	Finished bool `json:"finished"`
 }
 
 type Bill struct {
@@ -34,24 +35,25 @@ type Bill struct {
 }
 
 type Room struct {
-	Code      string  `json:"code"`
-	Tax       float64 `json:"tax"`
-	Tip       float64 `json:"tip"`
-	Total     float64 `json:"total"`
-	UserCount int     `json:"user_count"`
-	Items     []Item  `json:"items"`
+	Code  string  `json:"code"`
+	Tax   float64 `json:"tax"`
+	Tip   float64 `json:"tip"`
+	Total float64 `json:"total"`
+	Users []User  `json:"users"`
+	Items []Item  `json:"items"`
 }
 
 type Request struct {
-	Code   string  `json:"room_code"`
-	Image  string  `json:"image"`
-	UserId int     `json:"user_id"`
-	ItemId int     `json:"item_id"`
-	Tax    float64 `json:"tax"`
-	Tip    float64 `json:"tip"`
-	Total  float64 `json:"total"`
-	Price  float64 `json:"price"`
-	Amount int     `json:"amount"`
+	Code     string  `json:"room_code"`
+	Image    string  `json:"image"`
+	UserId   int     `json:"user_id"`
+	ItemId   int     `json:"item_id"`
+	Tax      float64 `json:"tax"`
+	Tip      float64 `json:"tip"`
+	Total    float64 `json:"total"`
+	Price    float64 `json:"price"`
+	Amount   int     `json:"amount"`
+	Finished bool    `json:"finished"`
 }
 
 var Rooms []Room
@@ -103,10 +105,9 @@ func getRoom(roomCode string) (*Room, error) {
 
 func (r *Room) addUser() (*User, error) {
 	newUser := User{
-		UserId: r.UserCount,
+		UserId: len(r.Users),
 	}
-	r.UserCount = r.UserCount + 1
-	fmt.Println(r)
+	r.Users = append(r.Users, newUser)
 	return &newUser, nil
 }
 
@@ -180,7 +181,17 @@ func (r *Room) calculateBill(user_id int) (*Bill, error) {
 		}
 	}
 
-	return &Bill{UserId: user_id, Bill: r.Total / float64(r.UserCount), Items: participatedItems}, nil
+	return &Bill{UserId: user_id, Bill: r.Total / float64(len(r.Users)), Items: participatedItems}, nil
+}
+
+func (r *Room) changeFinished(user_id int, finished bool) (*User, error) {
+	for ind, u := range r.Users {
+		if u.UserId == user_id {
+			r.Users[ind].Finished = finished
+			return &r.Users[ind], nil
+		}
+	}
+	return nil, errors.New("User id not found")
 }
 
 func CreateRoom(c *gin.Context) {
@@ -254,7 +265,15 @@ func GetRoom(c *gin.Context) {
 	r, err := getRoom(code)
 
 	if err == nil {
-		c.JSON(http.StatusOK, r)
+		if c.Query("images") != "true" {
+			newItemArr := []Item{}
+			for _, i := range r.Items {
+				newItemArr = append(newItemArr, Item{Id: i.Id, Price: i.Price, Amounts: i.Amounts})
+			}
+			c.JSON(http.StatusOK, &Room{Code: r.Code, Total: r.Total, Tip: r.Tip, Tax: r.Tax, Users: r.Users, Items: newItemArr})
+		} else {
+			c.JSON(http.StatusOK, r)
+		}
 	} else {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -353,6 +372,30 @@ func JoinRoom(c *gin.Context) {
 	}
 
 	u, err := r.addUser()
+
+	if err == nil {
+		c.JSON(http.StatusOK, u)
+	} else {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+}
+
+func ChangeFinished(c *gin.Context) {
+	var requestDecoded Request
+	dec := json.NewDecoder(c.Request.Body)
+	if err := dec.Decode(&requestDecoded); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	r, err := getRoom(requestDecoded.Code)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	u, err := r.changeFinished(requestDecoded.UserId, requestDecoded.Finished)
 
 	if err == nil {
 		c.JSON(http.StatusOK, u)
