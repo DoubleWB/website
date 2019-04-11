@@ -136,5 +136,6 @@ func main() {
 		c.File("views/js/script.js")
 	})
 
+	//r.Run()
 	log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz")) // listen and serve on 0.0.0.0:443
 }

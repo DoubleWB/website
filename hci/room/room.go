@@ -179,10 +179,12 @@ func (r *Room) calculateBill(user_id int) (*Bill, error) {
 		for _, a := range i.Amounts {
 			totalAmount += float64(a.Amount)
 			if a.UserId == user_id {
-				userAmount += float64(a.Amount)
+				userAmount = float64(a.Amount)
 				participatedItems = append(participatedItems, i)
-				break
 			}
+		}
+		if totalAmount == 0 {
+			totalAmount = 1
 		}
 		billTotal += userAmount * (i.Price / totalAmount)
 	}
