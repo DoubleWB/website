@@ -19,7 +19,7 @@ class Signatures extends React.Component {
   }
 
   serverRequest() {
-    $.get("http://doublewb.xyz:8080/api/signs", res => {
+    $.get("https://doublewb.xyz/api/signs", res => {
       this.setState({
         signatures: res
       });
@@ -27,7 +27,7 @@ class Signatures extends React.Component {
   }
 
   handleSubmit(event) {
-    $.post("http://doublewb.xyz:8080/api/sign", JSON.stringify({name: this.state.new_signature}), res => {
+    $.post("https://doublewb.xyz/api/sign", JSON.stringify({name: this.state.new_signature}), res => {
       this.setState({
         signatures: res
       });
