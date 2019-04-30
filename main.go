@@ -3,15 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 
-	"github.com/DoubleWB/website/hci/room"
 	"github.com/DoubleWB/website/signatures"
 )
 
@@ -108,34 +105,15 @@ func main() {
 				"message": "pong",
 			})
 		})
+		api.GET("/cje", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{
+				"over_here": "https://drive.google.com/file/d/1PgsCpK2ogL9u7HX8VY-TJdgV6a1wzswm/view",
+			})
+		})
 		api.GET("/signs", fetchAllSignatures)
 		api.POST("/sign", createSignature)
 	}
 
-	hci := r.Group("/hci")
-	{
-		hci.GET("/", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-			})
-		})
-		hci.POST("/rooms", room.CreateRoom)
-		hci.GET("/rooms/:code", room.GetRoom)
-		hci.POST("/finished", room.ChangeFinished)
-		hci.DELETE("/rooms", room.DeleteRooms)
-		hci.POST("/join_room", room.JoinRoom)
-		hci.POST("/items", room.CreateItem)
-		hci.PUT("/items", room.EditItem)
-		hci.POST("/amounts", room.AddParticipation)
-		hci.PUT("/amounts", room.EditParticipation)
-		hci.DELETE("/amounts", room.RemoveParticipation)
-		hci.GET("/bill/user/:user/room/:code", room.GetBill)
-	}
-
-	r.GET("/js/script.js", func(c *gin.Context) {
-		c.File("views/js/script.js")
-	})
-
-	//r.Run()
-	log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz")) // listen and serve on 0.0.0.0:443
+	r.Run()
+	//log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz")) // listen and serve on 0.0.0.0:443
 }
