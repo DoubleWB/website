@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -60,20 +59,14 @@ func createSignature(c *gin.Context) {
 }
 
 func validSignature(sign string) bool {
-	//temporary measure to help prevent vulgarity
-	bannedWords := []string{"fuck", "shit", "ass", "cunt", "fag", "pussy", "bitch"}
-	for _, bannedWord := range bannedWords {
-		if strings.Contains(strings.ToLower(sign), bannedWord) {
-			return false
-		}
-	}
-
+	//No Repeats allowed
 	for _, signature := range currentSignatures {
 		if sign == signature.Name {
 			return false
 		}
 	}
 
+	//No Blanks allowed
 	return sign != ""
 }
 
@@ -83,11 +76,6 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
 
 		c.Next()
 	}
@@ -103,11 +91,6 @@ func main() {
 		api.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "pong",
-			})
-		})
-		api.GET("/cje", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"over_here": "https://drive.google.com/file/d/1PgsCpK2ogL9u7HX8VY-TJdgV6a1wzswm/view",
 			})
 		})
 		api.GET("/signs", fetchAllSignatures)
