@@ -96,5 +96,5 @@ func main() {
 		api.POST("/sign", createSignature)
 	}
 
-	r.Run()
+	r.Run("localhost:8080")
 }
