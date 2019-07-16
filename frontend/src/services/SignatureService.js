@@ -11,14 +11,14 @@ export default class SignatureService {
 
     //Fetch all signatures
     getSignatures = () =>
-        fetch(`http://www.doublewb.xyz/api/signs`, {
+        fetch(`http://localhost:8080/api/signs`, {
             method: 'GET',
         })
             .then(response => response.json())
 
     //Send new signature to the server
     createSignature = signature =>
-        fetch(`http://www.doublewb.xyz/api/sign`, {
+        fetch(`http://localhost:8080/api/sign`, {
             method: 'POST',
             body: JSON.stringify(signature),
             headers: {

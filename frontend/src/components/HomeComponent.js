@@ -57,7 +57,7 @@ export default class Home extends React.Component {
             </div>
             &nbsp;
             <div className="row">
-              <a class="btn btn-info col-sm-12" href="https://github.com/DoubleWB/" role="button">Personal Github</a>
+              <a class="btn btn-info col-sm-12" href="https://github.com/DoubleWB/" role="button">Github</a>
             </div>
           </div>
           <div className="col-9 right">
