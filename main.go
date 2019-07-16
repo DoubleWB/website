@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 
 	"github.com/DoubleWB/website/signatures"
@@ -84,7 +83,7 @@ func CORSMiddleware() gin.HandlerFunc {
 func main() {
 	r := gin.Default()
 
-	r.Use(static.Serve("/", static.LocalFile("./views", true)), CORSMiddleware())
+	r.Use(CORSMiddleware())
 
 	api := r.Group("/api")
 	{
@@ -98,5 +97,4 @@ func main() {
 	}
 
 	r.Run()
-	//log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz")) // listen and serve on 0.0.0.0:443
 }
