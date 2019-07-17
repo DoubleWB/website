@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
-	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 
 	"github.com/DoubleWB/website/signatures"
@@ -98,5 +96,5 @@ func main() {
 		api.POST("/sign", createSignature)
 	}
 
-	log.Fatal(autotls.Run(r, "doublewb.xyz", "www.doublewb.xyz"))
+	r.Run()
 }
