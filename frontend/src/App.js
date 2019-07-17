@@ -16,7 +16,7 @@ export default class App extends React.Component {
                     &nbsp;
                     <p></p>
                     <Route
-                        path="/"
+                        exact path="/"
                         render={() => <HomeComponent />} />
                     <Route
                         exact path="/about"
