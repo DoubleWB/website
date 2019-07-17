@@ -24,7 +24,7 @@ export default class Home extends React.Component {
   }
 
   handleSubmit() {
-    signatureService.createSignature({ name: this.state.new_signature }).then(res =>
+    signatureService.createSignature({ name: this.state.new_signature }).then(res => 
       this.setState({
         signatures: res
       }))
@@ -37,7 +37,7 @@ export default class Home extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchSignatures();
+    this.fetchSignatures()
   }
 
   render() {
@@ -69,7 +69,7 @@ export default class Home extends React.Component {
                   <input type="text" value={this.state.new_signature} onChange={this.handleChange} />
               </label>
               &nbsp;
-              <input class="button-success" type="submit" value="Sign Guestbook" onClick={this.handleSubmit} />
+              <a href="#" class="btn btn-primary" role="button" onClick={this.handleSubmit}>Sign Guestbook</a>
             </form>
             <table class="table">
               <thead>

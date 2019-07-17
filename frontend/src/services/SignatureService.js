@@ -25,5 +25,5 @@ export default class SignatureService {
                 'content-type': 'application/json'
             }
         })
-            .then().then(response => response.json())
+            .then(response => response.json())
 }
