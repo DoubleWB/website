@@ -16,7 +16,7 @@ export default class About extends React.Component {
                 about my projects and other going-ons is another benefit of this good practice!
                 <br/>
                 <br/>
-                Currently this site is mainly a landing page for my github and linkedin pages,
+                Currently this site is mainly a landing page for my Github and Linkedin pages,
                 but feel free to leave a signature if you'd like so I can see the variety of people
                 that visit!
                 <br/>

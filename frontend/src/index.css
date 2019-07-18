@@ -18,9 +18,8 @@ body {
     border-top: '2px dashed #8c8b8b';
 }
 
-.div-mid {
-  display: block;
-  margin: auto;
+.centered {
+  text-align: center;
 }
 
 .black {

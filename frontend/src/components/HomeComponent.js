@@ -25,7 +25,7 @@ export default class Home extends React.Component {
   }
 
   handleSubmit() {
-    signatureService.createSignature({ name: this.state.new_signature }).then(res => 
+    signatureService.createSignature({ name: this.state.new_signature }).then(res =>
       this.fetchSignatures()
     )
   }
@@ -58,6 +58,10 @@ export default class Home extends React.Component {
             &nbsp;
             <div className="row">
               <a class="btn btn-info col-sm-12" href="https://github.com/DoubleWB/" role="button">Github</a>
+            </div>
+            &nbsp;
+            <div className="row">
+              <img class="col-sm-12" src="home_image.png" alt="homepage_robot_image" width="300" height="350" />
             </div>
           </div>
           <div className="col-9 right">
