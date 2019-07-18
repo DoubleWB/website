@@ -7,11 +7,16 @@ import (
 	"time"
 )
 
+//type to encapsulate a signature object
 type Signature struct {
-	Name      string    `json:"name"`
+	//The "signature" string
+	Name string `json:"name"`
+	//The point in time at which this signature was created
 	CreatedAt time.Time `json:"created_at"`
 }
 
+//Takes in a signature, and the name of a file, and appends this signature object to the end of the file
+//Returns any errors with opening the file or encoding the object
 func (s Signature) WriteToFile(filename string) error {
 	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer file.Close()
@@ -22,6 +27,9 @@ func (s Signature) WriteToFile(filename string) error {
 	return enc.Encode(&s)
 }
 
+//Takes an array of signatures, and the name of a file
+//and saves this array of objects by overwriting the file
+//Returns any errors with replacing the file or encoding the object
 func SaveOverFile(signList []Signature, filename string) error {
 	if err := os.Remove(filename); err != nil {
 		return err
@@ -34,6 +42,7 @@ func SaveOverFile(signList []Signature, filename string) error {
 	return nil
 }
 
+//Returns a new signature object with the given name and the current time
 func NewSignature(name string) Signature {
 	return Signature{
 		Name:      name,
@@ -41,11 +50,16 @@ func NewSignature(name string) Signature {
 	}
 }
 
+//Takes a name and a filename, and immediately creates a signature and writes it to the file
+//Returns the new signature, and any errors with writing it to the file
 func WriteNewSignature(name, filename string) (Signature, error) {
 	s := NewSignature(name)
 	return s, s.WriteToFile(filename)
 }
 
+//Takes a filename of a file with signature objects encoded in it, and returns
+//the slice of signature objects written to the file
+//Returns an error if there is an issue decoding the file
 func ReadFromFile(filename string) ([]Signature, error) {
 	file, err := os.OpenFile(filename, os.O_RDONLY, os.ModeAppend)
 	defer file.Close()
@@ -57,7 +71,7 @@ func ReadFromFile(filename string) ([]Signature, error) {
 	for {
 		s := Signature{}
 		err := dec.Decode(&s)
-		//Don't want to have any bad members
+		//Quit early if there are any badly formatted members
 		if err != nil {
 			if err == io.EOF {
 				return signatures, nil
